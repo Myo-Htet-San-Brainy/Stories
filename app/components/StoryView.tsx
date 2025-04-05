@@ -59,7 +59,7 @@ const StoryView: React.FC<StoryView> = ({ stories, onFinish }) => {
       }}
     >
       {/* MAIN */}
-      <div className="relative w-[90%] h-[90%] mx-auto  isolate">
+      <div className="relative w-[90%] h-[90%] mx-auto  isolate mb-2">
         {/* TOP BTNS */}
         <div className="z-10 absolute top-0 left-0 w-full py-2">
           {/* PROGRESS BAR */}

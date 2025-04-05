@@ -8,7 +8,7 @@ interface ReplyAndReactProps {
 const ReplyAndReact: React.FC<ReplyAndReactProps> = ({ handleIsPaused }) => {
   const [hideReactions, setHideReactions] = useState(false);
   return (
-    <div className="mt-3 w-full h-7 flex gap-2">
+    <div className=" w-full flex gap-2">
       <Reply
         onFocus={() => {
           setHideReactions(true);
