@@ -3,6 +3,10 @@ import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { motion } from "motion/react";
 import Image from "next/image";
+import ReplyAndReact from "./ReplyAndReact";
+import { clsx } from "clsx";
+import { HiOutlinePause } from "react-icons/hi2";
+import { RxResume } from "react-icons/rx";
 
 interface StoryView {
   stories: string[];
@@ -14,38 +18,34 @@ const fromBottomAniDuration = 800;
 const storyDuration = 3000;
 const StoryView: React.FC<StoryView> = ({ stories, onFinish }) => {
   const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
-  const progressBarsRef = useRef<HTMLDivElement[]>([]);
+  const [isPaused, setIsPaused] = useState(false);
+  const [progressBarsW, setProgressBarsW] = useState<number[]>(
+    Array(stories.length).fill(0)
+  );
   useEffect(() => {
     async function start() {
-      //first story
-      if (currentStoryIndex === 0) {
+      if (currentStoryIndex === 0 && progressBarsW[currentStoryIndex] === 0) {
         await new Promise((resolve) =>
           setTimeout(resolve, fromBottomAniDuration)
         );
       }
-      //grab element and play animation
-      const element = progressBarsRef.current[currentStoryIndex];
-      let width = 0;
-      function step() {
-        width += 0.2;
-        if (width <= 100) {
-          if (element) {
-            element.style.width = `${width}%`;
-            requestAnimationFrame(step);
-          }
+      if (isPaused) return;
+      let newProgressBarsW = [...progressBarsW];
+      newProgressBarsW[currentStoryIndex] =
+        newProgressBarsW[currentStoryIndex] + 0.2;
+      if (newProgressBarsW[currentStoryIndex] <= 100) {
+        requestAnimationFrame(() => setProgressBarsW(newProgressBarsW));
+      } else {
+        const newStory = currentStoryIndex + 1;
+        if (newStory >= stories.length) {
+          onFinish();
         } else {
-          const nextStoryIndex = currentStoryIndex + 1;
-          if (nextStoryIndex > stories.length - 1) {
-            onFinish();
-          } else {
-            setCurrentStoryIndex(nextStoryIndex);
-          }
+          setCurrentStoryIndex(newStory);
         }
       }
-      requestAnimationFrame(step);
     }
     start();
-  }, [currentStoryIndex]);
+  }, [currentStoryIndex, isPaused, progressBarsW]);
 
   return createPortal(
     <motion.div
@@ -60,21 +60,28 @@ const StoryView: React.FC<StoryView> = ({ stories, onFinish }) => {
     >
       {/* MAIN */}
       <div className="relative w-[90%] h-[90%] mx-auto  isolate">
-        {/* PROGRESS BAR */}
+        {/* TOP BTNS */}
         <div className="z-10 absolute top-0 left-0 w-full py-2">
-          <div className="flex gap-1">
+          {/* PROGRESS BAR */}
+          <div className="flex gap-1 w-[90%] mx-auto">
             {stories.map((val, index) => {
+              const width = progressBarsW[index];
               return (
                 <div key={index} className="relative grow h-1 bg-white/50">
                   <div
-                    ref={(el) => {
-                      progressBarsRef.current[index] = el as HTMLDivElement;
-                    }}
                     className="absolute left-0 top-0 h-full bg-white"
+                    style={{
+                      width: `${width}%`,
+                    }}
                   ></div>
                 </div>
               );
             })}
+          </div>
+          <div className="w-full flex justify-end px-[5%] mt-2">
+            <button onClick={() => setIsPaused(!isPaused)}>
+              {isPaused ? <RxResume size={30} /> : <HiOutlinePause size={30} />}
+            </button>
           </div>
         </div>
         {/* STORY/IMAGE */}
@@ -86,30 +93,10 @@ const StoryView: React.FC<StoryView> = ({ stories, onFinish }) => {
         />
       </div>
       {/* COMMENT & REACTIONS */}
-      <div>reactions</div>
+      <ReplyAndReact />
     </motion.div>,
     document.body
   );
 };
-
-// const Content = () => {
-//   return (
-//     <motion.div
-//       className="absolute   top-0 left-[50%] h-[100%] w-[40%] py-5"
-//       initial={{ y: "100%", x: "-50%" }} // Start below + centered
-//       animate={{ y: 0, x: "-50%" }} // Slide up + remain centered
-//       transition={{
-//         type: "spring", // Spring animation for bouncy effect
-//         damping: 100, // Controls bounce (higher = less bounce)
-//         stiffness: 300, // Spring stiffness
-//       }}
-//     >
-//       {/* MAIN */}
-//       <div className="w-[90%] h-[90%] mx-auto bg-amber-200 rounded-2xl"></div>
-//       {/* COMMENT & REACTIONS */}
-//       <div>reactions</div>
-//     </motion.div>
-//   );
-// };
 
 export default StoryView;
