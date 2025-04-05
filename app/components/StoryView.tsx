@@ -93,7 +93,7 @@ const StoryView: React.FC<StoryView> = ({ stories, onFinish }) => {
         />
       </div>
       {/* COMMENT & REACTIONS */}
-      <ReplyAndReact />
+      <ReplyAndReact handleIsPaused={(newState) => setIsPaused(newState)} />
     </motion.div>,
     document.body
   );
