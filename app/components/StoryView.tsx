@@ -5,13 +5,21 @@ import { motion } from "motion/react";
 import Image from "next/image";
 import ReplyAndReact from "./ReplyAndReact";
 import { clsx } from "clsx";
-import { HiOutlinePause } from "react-icons/hi2";
-import { RxResume } from "react-icons/rx";
+
+import TopBar from "./TopBar";
+import NextPrev from "./NextPrev";
 
 interface StoryView {
   stories: string[];
   onFinish: () => void;
 }
+
+export type Animation = {
+  dir: "INCREASE" | "DECREASE";
+  to: number;
+  step: number;
+  finishedCallback?: () => void;
+};
 
 //CONSTANTS
 const fromBottomAniDuration = 800;
@@ -19,34 +27,96 @@ const storyDuration = 3000;
 const StoryView: React.FC<StoryView> = ({ stories, onFinish }) => {
   const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [isStartAniDone, setIsStartAniDone] = useState(false);
   const [progressBarsW, setProgressBarsW] = useState<number[]>(
     Array(stories.length).fill(0)
   );
+  const [animations, setAnimations] = useState<Animation[]>([]);
+
   useEffect(() => {
-    async function start() {
-      if (currentStoryIndex === 0 && progressBarsW[currentStoryIndex] === 0) {
-        await new Promise((resolve) =>
-          setTimeout(resolve, fromBottomAniDuration)
-        );
-      }
-      if (isPaused) return;
-      let newProgressBarsW = [...progressBarsW];
-      newProgressBarsW[currentStoryIndex] =
-        newProgressBarsW[currentStoryIndex] + 0.2;
-      if (newProgressBarsW[currentStoryIndex] <= 100) {
-        requestAnimationFrame(() => setProgressBarsW(newProgressBarsW));
-      } else {
-        const newStory = currentStoryIndex + 1;
-        if (newStory >= stories.length) {
-          onFinish();
-        } else {
-          setCurrentStoryIndex(newStory);
-        }
+    async function wait() {
+      await new Promise<void>((resolve) =>
+        setTimeout(() => {
+          setIsPaused(false);
+          resolve();
+        }, fromBottomAniDuration)
+      );
+      setIsStartAniDone(true);
+    }
+    wait();
+  }, []);
+
+  useEffect(() => {
+    if (!isStartAniDone) return;
+    const newProgressBarsW = [...progressBarsW];
+    newProgressBarsW[currentStoryIndex] = 0;
+    setProgressBarsW(newProgressBarsW);
+    setAnimations([
+      {
+        to: 100,
+        step: 0.2,
+        dir: "INCREASE",
+        finishedCallback: () => {
+          const newStory = currentStoryIndex + 1;
+          if (newStory >= stories.length) {
+            onFinish();
+          } else {
+            setCurrentStoryIndex(newStory);
+          }
+        },
+      },
+    ]);
+  }, [currentStoryIndex, isStartAniDone]);
+
+  useEffect(() => {
+    if (isPaused) return;
+    if (animations.length === 0) return;
+
+    const currAni = animations[0];
+    // console.log(currAni);
+    const condition =
+      currAni.dir === "INCREASE"
+        ? progressBarsW[currentStoryIndex] < currAni.to
+        : progressBarsW[currentStoryIndex] > currAni.to;
+    if (condition) {
+      const newState = [...progressBarsW];
+      newState[currentStoryIndex] = newState[currentStoryIndex] + currAni.step;
+      requestAnimationFrame(() => setProgressBarsW(newState));
+    } else {
+      const newState = [...animations];
+      const finishedAni = newState.shift();
+      setAnimations([]);
+      if (finishedAni?.finishedCallback) {
+        finishedAni.finishedCallback();
       }
     }
-    start();
-  }, [currentStoryIndex, isPaused, progressBarsW]);
+  }, [animations, isPaused, progressBarsW]);
 
+  function onPrev() {
+    setAnimations([
+      {
+        to: 0,
+        step: -1,
+        dir: "DECREASE",
+        finishedCallback: () => {
+          setCurrentStoryIndex(currentStoryIndex - 1);
+        },
+      },
+    ]);
+  }
+
+  function onNext() {
+    setAnimations([
+      {
+        to: 100,
+        step: 1,
+        dir: "INCREASE",
+        finishedCallback: () => {
+          setCurrentStoryIndex(currentStoryIndex + 1);
+        },
+      },
+    ]);
+  }
   return createPortal(
     <motion.div
       className="absolute top-0 left-[50%] h-[100%] w-[30%] py-5"
@@ -60,30 +130,20 @@ const StoryView: React.FC<StoryView> = ({ stories, onFinish }) => {
     >
       {/* MAIN */}
       <div className="relative w-[90%] h-[90%] mx-auto  isolate mb-2">
-        {/* TOP BTNS */}
-        <div className="z-10 absolute top-0 left-0 w-full py-2">
-          {/* PROGRESS BAR */}
-          <div className="flex gap-1 w-[90%] mx-auto">
-            {stories.map((val, index) => {
-              const width = progressBarsW[index];
-              return (
-                <div key={index} className="relative grow h-1 bg-white/50">
-                  <div
-                    className="absolute left-0 top-0 h-full bg-white"
-                    style={{
-                      width: `${width}%`,
-                    }}
-                  ></div>
-                </div>
-              );
-            })}
-          </div>
-          <div className="w-full flex justify-end px-[5%] mt-2">
-            <button onClick={() => setIsPaused(!isPaused)}>
-              {isPaused ? <RxResume size={30} /> : <HiOutlinePause size={30} />}
-            </button>
-          </div>
-        </div>
+        {/* Top Bar Tools And Others */}
+        <TopBar
+          isPaused={isPaused}
+          setIsPaused={setIsPaused}
+          stories={stories}
+          progressBarsW={progressBarsW}
+        />
+        {/* NEXT/PREV */}
+        <NextPrev
+          currentStoryIndex={currentStoryIndex}
+          stories={stories}
+          onPrev={onPrev}
+          onNext={onNext}
+        />
         {/* STORY/IMAGE */}
         <Image
           src={stories[currentStoryIndex]}

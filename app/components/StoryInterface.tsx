@@ -6,7 +6,7 @@ import { getImagesFromStorage } from "@/lib/localStorageUtils";
 import Account from "./Account";
 
 const StoryInterface = () => {
-  const [stories, setStories] = useState(["/me.png", "/me2.jpg"]);
+  const [stories, setStories] = useState(["/me.png", "/me2.jpg", "/me3.jpg"]);
 
   return (
     <div className="flex h-20 w-full py-2 box-content ">
