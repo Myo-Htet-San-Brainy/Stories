@@ -20,11 +20,11 @@ const NextPrev: React.FC<NextPrevProps> = ({
     onNext();
   }
   return (
-    <>
+    <div className="hidden md:block">
       {currentStoryIndex !== 0 && (
         <div
           onClick={handlePrev}
-          className="z-10 absolute top-1/2 -translate-y-1/2 -left-1/4"
+          className=" z-10 absolute top-1/2 -translate-y-1/2 -left-1/8"
         >
           <GrPrevious
             className="bg-slate-200 text-black rounded-full p-2"
@@ -35,7 +35,7 @@ const NextPrev: React.FC<NextPrevProps> = ({
       {currentStoryIndex !== stories.length - 1 && (
         <div
           onClick={handleNext}
-          className="z-10 absolute top-1/2 -translate-y-1/2 -right-1/4"
+          className="z-10 absolute top-1/2 -translate-y-1/2 -right-1/8"
         >
           <GrNext
             className="bg-slate-200 text-black rounded-full p-2"
@@ -43,7 +43,7 @@ const NextPrev: React.FC<NextPrevProps> = ({
           />
         </div>
       )}
-    </>
+    </div>
   );
 };
 

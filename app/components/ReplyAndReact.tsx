@@ -21,7 +21,7 @@ const ReplyAndReact: React.FC<ReplyAndReactProps> = ({
     setSentReactions([]);
   }, [currentStoryIndex]);
   return (
-    <div className="relative w-full flex gap-2">
+    <div className="relative w-full h-[8%] flex items-center gap-2 pl-2 overflow-x-scroll lg:overflow-x-visible">
       <Reply
         onFocus={() => {
           setHideReactions(true);
@@ -34,15 +34,17 @@ const ReplyAndReact: React.FC<ReplyAndReactProps> = ({
         hideReactions={hideReactions}
         onSend={(msg) => toast.success(`sent "${msg}"`)}
       />
+
       <Reactions
         hideReactions={hideReactions}
         setSentReactions={setSentReactions}
         onMouseEnterReactions={() => handleIsPaused(true)}
         onMouseLeaveReactions={() => handleIsPaused(false)}
       />
+
       {/* Sent Reactions Display */}
       {
-        <div className="absolute top-0 left-[5%] -translate-y-[120%] w-[90%] h-[80%] flex justify-start pl-4">
+        <div className="absolute top-0 left-[5%] -translate-y-[120%] w-full h-[80%] flex justify-start">
           {sentReactions.map((reaction, index) => {
             return (
               <div key={index} className="h-full w-fit flex items-center">
@@ -55,7 +57,7 @@ const ReplyAndReact: React.FC<ReplyAndReactProps> = ({
             );
           })}
           {sentReactions.length > 0 && (
-            <p className="ml-2 h-full w-fit flex items-center">
+            <p className="text-xs ml-2 h-full w-fit flex items-center">
               Sent to Brainy.
             </p>
           )}

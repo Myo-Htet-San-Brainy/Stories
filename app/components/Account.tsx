@@ -3,13 +3,18 @@ import StoryView from "./StoryView";
 import Image from "next/image";
 
 export interface Account {
+  setViewStory: React.Dispatch<React.SetStateAction<boolean>>;
   name: string;
   profileImage: string;
   stories: string[];
 }
 
-const Account: React.FC<Account> = ({ name, profileImage, stories }) => {
-  const [viewStory, setViewStory] = useState(false);
+const Account: React.FC<Account> = ({
+  name,
+  profileImage,
+  stories,
+  setViewStory,
+}) => {
   return (
     <div
       className=" h-full w-20 flex flex-col items-center"
@@ -28,10 +33,6 @@ const Account: React.FC<Account> = ({ name, profileImage, stories }) => {
       </div>
       {/* The Name */}
       <h1>{name}</h1>
-      {/* VIEW STORY */}
-      {viewStory && (
-        <StoryView stories={stories} onFinish={() => setViewStory(false)} />
-      )}
     </div>
   );
 };

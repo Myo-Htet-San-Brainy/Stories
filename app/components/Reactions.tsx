@@ -10,7 +10,14 @@ interface ReactionsProps {
   onMouseLeaveReactions?: () => void;
 }
 
-const iconPaths = ["/goldenLike.lottie", "/loveicon.lottie"];
+const iconPaths = [
+  "/goldenLike.lottie",
+  "/loveicon.lottie",
+  "/goldenLike.lottie",
+  "/loveicon.lottie",
+  "/goldenLike.lottie",
+  "/loveicon.lottie",
+];
 const Reactions: React.FC<ReactionsProps> = ({
   hideReactions,
   setSentReactions,
@@ -50,22 +57,19 @@ const Reactions: React.FC<ReactionsProps> = ({
     <div
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className={clsx(
-        "self-stretch transition-all duration-300 ease-in-out overflow-x-hidden flex gap-2",
-        {
-          "w-0 ": hideReactions,
-          "w-[20%]": !hideReactions,
-        }
-      )}
+      className={clsx("self-stretch  flex transition-all duration-300", {
+        "w-fit": !hideReactions,
+        "w-0": hideReactions,
+      })}
     >
       {iconPaths.map((path, index) => {
         return (
           <div
-            key={path}
-            className="w-full h-full flex items-center justify-center"
+            key={index}
+            className="w-10  h-full flex items-center justify-center"
           >
             <DotLottieReact
-              className="w-[80%] h-[80%] hover:w-full hover:h-full  transition-all duration-300"
+              className="w-[70%] h-[60%] hover:w-[80%] hover:h-[80%]  transition-all duration-300"
               mode="reverse"
               onClick={() => handleReactionClick(index)}
               loop={true}

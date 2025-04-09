@@ -50,8 +50,8 @@ const Reply: React.FC<ReplyProps> = ({
       className={clsx(
         "relative  h-fit transition-all duration-300 ease-in-out",
         {
-          "w-full": hideReactions,
-          "w-[80%]": !hideReactions,
+          "min-w-full ": hideReactions,
+          "min-w-[70%] ": !hideReactions,
         }
       )}
     >
@@ -61,7 +61,7 @@ const Reply: React.FC<ReplyProps> = ({
         onFocus={handleFocus}
         onBlur={handleBlur}
         onKeyDown={handleKeyPress}
-        className="w-full rounded-4xl border border-white p-2 pr-10 placeholder-slate-400 outline-none"
+        className="w-full rounded-4xl border border-white p-2 md:p-2 pl-4 placeholder:text-xs text-xs placeholder-slate-400 outline-none"
         placeholder="Reply..."
       />
 

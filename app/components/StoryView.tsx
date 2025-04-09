@@ -119,9 +119,9 @@ const StoryView: React.FC<StoryView> = ({ stories, onFinish }) => {
   }
   return createPortal(
     <motion.div
-      className="absolute top-0 left-[50%] h-[100%] w-[30%] py-5"
-      initial={{ y: "100%", x: "-50%" }} // Starts below viewport
-      animate={{ y: 0, x: "-50%" }} // Slides up to center
+      className="h-screen w-full md:w-[70%] lg:w-[50%] xl:w-[45%] 2xl:w-[30%] min-[1750px]:w-[25%] mx-auto md:py-5 flex flex-col"
+      initial={{ y: "100%" }} // Starts below viewport
+      animate={{ y: 0 }} // Slides up to center
       transition={{
         type: "tween", // Uses simple duration-based animation
         ease: "easeOut", // Smooth deceleration (try "linear" for constant speed)
@@ -129,7 +129,7 @@ const StoryView: React.FC<StoryView> = ({ stories, onFinish }) => {
       }}
     >
       {/* MAIN */}
-      <div className="relative w-[90%] h-[90%] mx-auto  isolate mb-2">
+      <div className="relative w-full grow mx-auto  isolate mb-3">
         {/* Top Bar Tools And Others */}
         <TopBar
           isPaused={isPaused}
