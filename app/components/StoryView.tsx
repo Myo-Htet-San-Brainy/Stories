@@ -213,10 +213,17 @@ const StoryView: React.FC<StoryView> = ({ stories, onFinish }) => {
         <Image
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
+          onContextMenu={(e) => e.preventDefault()}
           src={stories[currentStoryIndex]}
           alt="story"
           className="z-0 rounded-2xl object-cover"
-          style={{ touchAction: "none" }}
+          style={{
+            touchAction: "none",
+            WebkitTouchCallout: "none",
+            WebkitUserSelect: "none",
+            userSelect: "none",
+          }}
+          draggable={false}
           fill
         />
       </div>
