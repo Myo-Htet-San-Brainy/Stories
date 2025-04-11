@@ -42,6 +42,7 @@ const Reactions: React.FC<ReactionsProps> = ({
 
   //I know there's only two icons, first  is like and second is love
   function handleReactionClick(index: number) {
+    console.log("click on a Reaction");
     const icon = index === 0 ? "like" : "love";
     setSentReactions((prev) => {
       const newSentReactions = [...prev];
