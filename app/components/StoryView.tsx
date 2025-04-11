@@ -24,6 +24,7 @@ export type Animation = {
 //CONSTANTS
 const fromBottomAniDuration = 800;
 const storyDuration = 3000;
+const HOLD_TIMER_DURATION = 200;
 const StoryView: React.FC<StoryView> = ({ stories, onFinish }) => {
   const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -32,7 +33,63 @@ const StoryView: React.FC<StoryView> = ({ stories, onFinish }) => {
     Array(stories.length).fill(0)
   );
   const [animations, setAnimations] = useState<Animation[]>([]);
+  const isHoldRef = useRef<Boolean>(false);
+  const timeoutId = useRef<number>(0);
 
+  //
+  function handleTouchStart(e: React.TouchEvent<HTMLImageElement>) {
+    timeoutId.current = window.setTimeout(() => {
+      isHoldRef.current = true;
+      setIsPaused(true);
+    }, HOLD_TIMER_DURATION);
+  }
+
+  function handleTouchEnd(e: React.TouchEvent<HTMLImageElement>) {
+    window.clearTimeout(timeoutId.current);
+    if (isHoldRef.current) {
+      setIsPaused(false);
+      isHoldRef.current = false;
+    } else {
+      handleTap(e);
+    }
+  }
+
+  function handleTap(e: React.TouchEvent<HTMLImageElement>) {
+    const touchX = e.touches[0].clientX; // X-coordinate
+
+    if (touchX < window.innerWidth / 2) {
+      if (currentStoryIndex === 0) {
+        onFinish();
+      } else {
+        setAnimations([
+          {
+            to: 0,
+            step: -1,
+            dir: "DECREASE",
+            finishedCallback: () => {
+              setCurrentStoryIndex(currentStoryIndex - 1);
+            },
+          },
+        ]);
+      }
+    } else {
+      if (currentStoryIndex === stories.length - 1) {
+        onFinish();
+      } else {
+        setAnimations([
+          {
+            to: 100,
+            step: 1,
+            dir: "INCREASE",
+            finishedCallback: () => {
+              setCurrentStoryIndex(currentStoryIndex + 1);
+            },
+          },
+        ]);
+      }
+    }
+  }
+  //
   useEffect(() => {
     async function wait() {
       await new Promise<void>((resolve) =>
@@ -146,6 +203,8 @@ const StoryView: React.FC<StoryView> = ({ stories, onFinish }) => {
         />
         {/* STORY/IMAGE */}
         <Image
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
           src={stories[currentStoryIndex]}
           alt="story"
           className="z-0 rounded-2xl object-cover"
