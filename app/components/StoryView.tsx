@@ -41,8 +41,7 @@ const StoryView: React.FC<StoryView> = ({ stories, onFinish }) => {
 
   //
   function handleTouchStart(e: React.TouchEvent<HTMLImageElement>) {
-    console.log("touch firing");
-    console.log("touch start", e.touches);
+    e.preventDefault();
     touchXRef.current = e.touches[0].clientX;
     timeoutId.current = window.setTimeout(() => {
       isHoldRef.current = true;
@@ -217,6 +216,7 @@ const StoryView: React.FC<StoryView> = ({ stories, onFinish }) => {
           src={stories[currentStoryIndex]}
           alt="story"
           className="z-0 rounded-2xl object-cover"
+          style={{ touchAction: "none" }}
           fill
         />
       </div>
