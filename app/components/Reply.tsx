@@ -21,8 +21,9 @@ const Reply: React.FC<ReplyProps> = ({
   const [inputValue, setInputValue] = useState("");
   const hasKeyboard = useHasKeyboard();
 
-  const handleFocus = () => {
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement, Element>) => {
     if (!hasKeyboard) {
+      e.preventDefault();
       return toast("Replies are not supported on mobile browsers.", {
         style: {
           backgroundColor: "white",
