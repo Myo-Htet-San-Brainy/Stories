@@ -25,6 +25,8 @@ export type Animation = {
 const fromBottomAniDuration = 800;
 const storyDuration = 3000;
 const HOLD_TIMER_DURATION = 200;
+const QUICK_STEP = 2;
+const NORMAL_STEP = 0.2;
 const StoryView: React.FC<StoryView> = ({ stories, onFinish }) => {
   const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -34,10 +36,14 @@ const StoryView: React.FC<StoryView> = ({ stories, onFinish }) => {
   );
   const [animations, setAnimations] = useState<Animation[]>([]);
   const isHoldRef = useRef<Boolean>(false);
-  const timeoutId = useRef<number>(0);
+  const timeoutId = useRef<number | null>(null);
+  const touchXRef = useRef<number | null>(null);
 
   //
   function handleTouchStart(e: React.TouchEvent<HTMLImageElement>) {
+    console.log("touch firing");
+    console.log("touch start", e.touches);
+    touchXRef.current = e.touches[0].clientX;
     timeoutId.current = window.setTimeout(() => {
       isHoldRef.current = true;
       setIsPaused(true);
@@ -45,7 +51,9 @@ const StoryView: React.FC<StoryView> = ({ stories, onFinish }) => {
   }
 
   function handleTouchEnd(e: React.TouchEvent<HTMLImageElement>) {
-    window.clearTimeout(timeoutId.current);
+    if (timeoutId.current !== null) {
+      window.clearTimeout(timeoutId.current);
+    }
     if (isHoldRef.current) {
       setIsPaused(false);
       isHoldRef.current = false;
@@ -55,7 +63,8 @@ const StoryView: React.FC<StoryView> = ({ stories, onFinish }) => {
   }
 
   function handleTap(e: React.TouchEvent<HTMLImageElement>) {
-    const touchX = e.touches[0].clientX; // X-coordinate
+    const touchX = touchXRef.current;
+    if (touchX === null) return;
 
     if (touchX < window.innerWidth / 2) {
       if (currentStoryIndex === 0) {
@@ -64,7 +73,7 @@ const StoryView: React.FC<StoryView> = ({ stories, onFinish }) => {
         setAnimations([
           {
             to: 0,
-            step: -1,
+            step: -QUICK_STEP,
             dir: "DECREASE",
             finishedCallback: () => {
               setCurrentStoryIndex(currentStoryIndex - 1);
@@ -79,7 +88,7 @@ const StoryView: React.FC<StoryView> = ({ stories, onFinish }) => {
         setAnimations([
           {
             to: 100,
-            step: 1,
+            step: QUICK_STEP,
             dir: "INCREASE",
             finishedCallback: () => {
               setCurrentStoryIndex(currentStoryIndex + 1);
@@ -111,7 +120,7 @@ const StoryView: React.FC<StoryView> = ({ stories, onFinish }) => {
     setAnimations([
       {
         to: 100,
-        step: 0.2,
+        step: NORMAL_STEP,
         dir: "INCREASE",
         finishedCallback: () => {
           const newStory = currentStoryIndex + 1;
@@ -153,7 +162,7 @@ const StoryView: React.FC<StoryView> = ({ stories, onFinish }) => {
     setAnimations([
       {
         to: 0,
-        step: -1,
+        step: -QUICK_STEP,
         dir: "DECREASE",
         finishedCallback: () => {
           setCurrentStoryIndex(currentStoryIndex - 1);
@@ -166,7 +175,7 @@ const StoryView: React.FC<StoryView> = ({ stories, onFinish }) => {
     setAnimations([
       {
         to: 100,
-        step: 1,
+        step: QUICK_STEP,
         dir: "INCREASE",
         finishedCallback: () => {
           setCurrentStoryIndex(currentStoryIndex + 1);
