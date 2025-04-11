@@ -1,6 +1,8 @@
 import clsx from "clsx";
 import React, { useState } from "react";
 import { IoMdSend } from "react-icons/io";
+import useHasKeyboard from "../hooks/useHasKeyboard";
+import toast from "react-hot-toast";
 
 interface ReplyProps {
   hideReactions: boolean;
@@ -17,8 +19,17 @@ const Reply: React.FC<ReplyProps> = ({
 }) => {
   const [showArrowIcon, setShowArrowIcon] = useState(false);
   const [inputValue, setInputValue] = useState("");
+  const hasKeyboard = useHasKeyboard();
 
   const handleFocus = () => {
+    if (!hasKeyboard) {
+      return toast("Replies are not supported on mobile browsers.", {
+        style: {
+          backgroundColor: "white",
+          color: "skyblue",
+        },
+      });
+    }
     setShowArrowIcon(true);
     onFocus();
   };

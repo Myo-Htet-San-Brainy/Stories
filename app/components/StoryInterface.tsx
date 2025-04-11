@@ -14,7 +14,7 @@ const StoryInterface = ({
 }) => {
   return (
     <div className="flex h-20 w-full py-2 box-content ">
-      <CreateNewStory />
+      {/* <CreateNewStory /> */}
 
       {stories && stories.length > 0 && (
         <Account
