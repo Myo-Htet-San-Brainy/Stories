@@ -185,7 +185,7 @@ const StoryView: React.FC<StoryView> = ({ stories, onFinish }) => {
   }
   return createPortal(
     <motion.div
-      className="h-screen w-full md:w-[70%] lg:w-[50%] xl:w-[45%] 2xl:w-[30%] min-[1750px]:w-[25%] mx-auto md:py-5 flex flex-col"
+      className="h-dvh w-full md:w-[70%] lg:w-[50%] xl:w-[45%] 2xl:w-[30%] min-[1750px]:w-[25%] mx-auto md:py-5 pb-[env(safe-area-inset-bottom,15px)]  flex flex-col"
       initial={{ y: "100%" }} // Starts below viewport
       animate={{ y: 0 }} // Slides up to center
       transition={{
