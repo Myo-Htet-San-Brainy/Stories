@@ -19,7 +19,7 @@ const StoryInterface = ({
       {stories && stories.length > 0 && (
         <Account
           name="Brainy"
-          profileImage="/me.png"
+          profileImage={stories[0]}
           stories={stories}
           setViewStory={setViewStory}
         />

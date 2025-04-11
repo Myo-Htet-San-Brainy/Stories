@@ -5,7 +5,12 @@ import StoryView from "./components/StoryView";
 
 const Page = () => {
   const [viewStory, setViewStory] = useState(false);
-  const [stories, setStories] = useState(["/me.png", "/me2.jpg", "/me3.jpg"]);
+  const [stories, setStories] = useState([
+    "/dog.jpg",
+    "/dogtwo.jpg",
+    "/catone.jpg",
+    "/cattwo.jpg",
+  ]);
 
   return (
     <div>
