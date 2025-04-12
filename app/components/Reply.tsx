@@ -73,7 +73,8 @@ const Reply: React.FC<ReplyProps> = ({
         onFocus={handleFocus}
         onBlur={handleBlur}
         onKeyDown={handleKeyPress}
-        className="w-full rounded-4xl border border-white p-2 md:p-2 pl-4 placeholder:text-xs text-xs placeholder-slate-400 outline-none"
+        className="w-full rounded-4xl border border-white p-2 md:p-2 pl-4 placeholder:text-base text-base placeholder-slate-400 outline-none"
+        style={{ WebkitTextSizeAdjust: "100%", textSizeAdjust: "100%" }}
         placeholder="Reply..."
       />
 
