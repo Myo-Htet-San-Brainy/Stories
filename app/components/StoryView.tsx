@@ -128,25 +128,46 @@ const StoryView: React.FC<StoryView> = ({ stories, onFinish }) => {
     });
   }, [currentStoryIndex, isStartAniDone]);
 
+  function onFinishAnimation() {
+    setAnimation(null);
+    if (animation?.finishedCallback) {
+      animation.finishedCallback();
+    }
+  }
   useEffect(() => {
     if (isPaused) return;
     if (!isStartAniDone) return;
     if (animation === null) return;
 
-    const condition =
-      animation.dir === "INCREASE"
-        ? progressBarsW[currentStoryIndex] < animation.to
-        : progressBarsW[currentStoryIndex] > animation.to;
-    if (condition) {
-      const newState = [...progressBarsW];
-      newState[currentStoryIndex] =
-        newState[currentStoryIndex] + animation.step;
-      requestAnimationFrame(() => setProgressBarsW(newState));
-    } else {
-      setAnimation(null);
-      if (animation?.finishedCallback) {
-        animation.finishedCallback();
-      }
+    const currentWidth = progressBarsW[currentStoryIndex];
+    const newState = [...progressBarsW];
+
+    switch (animation.dir) {
+      case "INCREASE":
+        if (currentWidth < animation.to) {
+          newState[currentStoryIndex] = Math.min(
+            currentWidth + animation.step,
+            animation.to
+          );
+          requestAnimationFrame(() => setProgressBarsW(newState));
+        } else {
+          onFinishAnimation();
+        }
+        break;
+      case "DECREASE":
+        if (currentWidth > animation.to) {
+          newState[currentStoryIndex] = Math.max(
+            currentWidth + animation.step,
+            animation.to
+          );
+          requestAnimationFrame(() => setProgressBarsW(newState));
+        } else {
+          onFinishAnimation();
+        }
+        break;
+
+      default:
+        break;
     }
   }, [animation, isPaused, progressBarsW]);
 
