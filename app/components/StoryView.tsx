@@ -34,7 +34,7 @@ const StoryView: React.FC<StoryView> = ({ stories, onFinish }) => {
   const [progressBarsW, setProgressBarsW] = useState<number[]>(
     Array(stories.length).fill(0)
   );
-  const [animations, setAnimations] = useState<Animation[]>([]);
+  const [animation, setAnimation] = useState<Animation | null>(null);
   const isHoldRef = useRef<Boolean>(false);
   const timeoutId = useRef<number | null>(null);
   const touchXRef = useRef<number | null>(null);
@@ -69,31 +69,27 @@ const StoryView: React.FC<StoryView> = ({ stories, onFinish }) => {
       if (currentStoryIndex === 0) {
         onFinish();
       } else {
-        setAnimations([
-          {
-            to: 0,
-            step: -QUICK_STEP,
-            dir: "DECREASE",
-            finishedCallback: () => {
-              setCurrentStoryIndex(currentStoryIndex - 1);
-            },
+        setAnimation({
+          to: 0,
+          step: -QUICK_STEP,
+          dir: "DECREASE",
+          finishedCallback: () => {
+            setCurrentStoryIndex(currentStoryIndex - 1);
           },
-        ]);
+        });
       }
     } else {
       if (currentStoryIndex === stories.length - 1) {
         onFinish();
       } else {
-        setAnimations([
-          {
-            to: 100,
-            step: QUICK_STEP,
-            dir: "INCREASE",
-            finishedCallback: () => {
-              setCurrentStoryIndex(currentStoryIndex + 1);
-            },
+        setAnimation({
+          to: 100,
+          step: QUICK_STEP,
+          dir: "INCREASE",
+          finishedCallback: () => {
+            setCurrentStoryIndex(currentStoryIndex + 1);
           },
-        ]);
+        });
       }
     }
   }
@@ -102,85 +98,78 @@ const StoryView: React.FC<StoryView> = ({ stories, onFinish }) => {
     async function wait() {
       await new Promise<void>((resolve) =>
         setTimeout(() => {
-          setIsPaused(false);
+          setIsStartAniDone(true);
           resolve();
         }, fromBottomAniDuration)
       );
-      setIsStartAniDone(true);
     }
     wait();
   }, []);
 
   useEffect(() => {
     if (!isStartAniDone) return;
+
     const newProgressBarsW = [...progressBarsW];
     newProgressBarsW[currentStoryIndex] = 0;
     setProgressBarsW(newProgressBarsW);
-    setAnimations([
-      {
-        to: 100,
-        step: NORMAL_STEP,
-        dir: "INCREASE",
-        finishedCallback: () => {
-          const newStory = currentStoryIndex + 1;
-          if (newStory >= stories.length) {
-            onFinish();
-          } else {
-            setCurrentStoryIndex(newStory);
-          }
-        },
+
+    setAnimation({
+      to: 100,
+      step: NORMAL_STEP,
+      dir: "INCREASE",
+      finishedCallback: () => {
+        const newStory = currentStoryIndex + 1;
+        if (newStory >= stories.length) {
+          onFinish();
+        } else {
+          setCurrentStoryIndex(newStory);
+        }
       },
-    ]);
+    });
   }, [currentStoryIndex, isStartAniDone]);
 
   useEffect(() => {
     if (isPaused) return;
-    if (animations.length === 0) return;
+    if (!isStartAniDone) return;
+    if (animation === null) return;
 
-    const currAni = animations[0];
-    // console.log(currAni);
     const condition =
-      currAni.dir === "INCREASE"
-        ? progressBarsW[currentStoryIndex] < currAni.to
-        : progressBarsW[currentStoryIndex] > currAni.to;
+      animation.dir === "INCREASE"
+        ? progressBarsW[currentStoryIndex] < animation.to
+        : progressBarsW[currentStoryIndex] > animation.to;
     if (condition) {
       const newState = [...progressBarsW];
-      newState[currentStoryIndex] = newState[currentStoryIndex] + currAni.step;
+      newState[currentStoryIndex] =
+        newState[currentStoryIndex] + animation.step;
       requestAnimationFrame(() => setProgressBarsW(newState));
     } else {
-      const newState = [...animations];
-      const finishedAni = newState.shift();
-      setAnimations([]);
-      if (finishedAni?.finishedCallback) {
-        finishedAni.finishedCallback();
+      setAnimation(null);
+      if (animation?.finishedCallback) {
+        animation.finishedCallback();
       }
     }
-  }, [animations, isPaused, progressBarsW]);
+  }, [animation, isPaused, progressBarsW]);
 
   function onPrev() {
-    setAnimations([
-      {
-        to: 0,
-        step: -QUICK_STEP,
-        dir: "DECREASE",
-        finishedCallback: () => {
-          setCurrentStoryIndex(currentStoryIndex - 1);
-        },
+    setAnimation({
+      to: 0,
+      step: -QUICK_STEP,
+      dir: "DECREASE",
+      finishedCallback: () => {
+        setCurrentStoryIndex(currentStoryIndex - 1);
       },
-    ]);
+    });
   }
 
   function onNext() {
-    setAnimations([
-      {
-        to: 100,
-        step: QUICK_STEP,
-        dir: "INCREASE",
-        finishedCallback: () => {
-          setCurrentStoryIndex(currentStoryIndex + 1);
-        },
+    setAnimation({
+      to: 100,
+      step: QUICK_STEP,
+      dir: "INCREASE",
+      finishedCallback: () => {
+        setCurrentStoryIndex(currentStoryIndex + 1);
       },
-    ]);
+    });
   }
   return createPortal(
     <motion.div
